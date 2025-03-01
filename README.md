@@ -1,0 +1,1 @@
+# veritaban-y-netim-sistemleri
