@@ -1,0 +1,73 @@
+create database library;
+
+use libraary
+
+create table adresler(
+adresNo int not null identity(1,1) primary key,
+sehir nvarchar(100),
+mahalle nvarchar(100),
+bina nvarchar(100),
+cadde nvarchar(100),
+postaKodu int,
+ulke nvarchar(100)
+);
+
+create table uyeler(
+uyeNo int not null identity(1,1) primary key,
+ad nvarchar(100),
+soyad nvarchar(100),
+eposta nvarchar(100),
+cinsiyet nvarchar(1),
+telefon int,
+adresNo int foreign key (adresNo) references adresler(adresNo)
+);
+
+create table kutuphane(
+kutuphaneNo int not null identity(1,1) primary key,
+kutuphaneIsmi nvarchar(100),
+aciklama nvarchar(100),
+adresNo int foreign key(adresNo) REFERENCES adresler(adresNo)
+);
+
+create table kitaplar(
+ISBN int not null identity(1,1) primary key,
+sayfaSayisi int,
+kitapAdı nvarchar(100),
+yayinTarihi datetime,
+);
+
+create table emanet(
+emanetNo int not null identity(1,1) primary key,
+emanetTarihi datetime,
+teslimTarihi datetime,
+ISBN int foreign key (ISBN) REFERENCES kitaplar(ISBN),
+kutuphaneNo int foreign key (kutuphaneNo) REFERENCES kutuphane(kutuphaneNo),
+uyeNo int foreign key (kutuphaneNo) REFERENCES uyeler(uyeNo)
+);
+
+create table katogoriler(
+katogoriNo int not null identity(1,1) primary key,
+katogoriAdi nvarchar(100)
+);
+
+create table yazarlar(
+yazarNo int not null identity primary key,
+yazarAdi nvarchar(100),
+yazarSoyadi nvarchar(100)
+);
+
+create table kutuphane_kitap(
+kutuphaneNo int foreign key (kutuphaneNo) REFERENCES kutuphane(kutuphaneNo),
+ISBN int foreign key (ISBN) REFERENCES kitaplar(ISBN),
+miktar int
+);
+
+create table kitap_katogeri(
+ISBN int foreign key (ISBN) REFERENCES kitaplar(ISBN),
+katogoriNo int foreign key (katogoriNo) references katogoriler(katogoriNo)
+);
+
+create table kitap_yazar( 
+ISBN int foreign key (ISBN) REFERENCES kitaplar(ISBN),
+yazarNo int foreign key (yazarNo) REFERENCES yazarlar(yazarNo)
+);
