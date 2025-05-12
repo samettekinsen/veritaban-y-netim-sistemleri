@@ -1,0 +1,77 @@
+1.samet tekinşen satılan aracın aynısından baska hangi musterılere satıldıgını bulmak ıcın:
+select (musteri.Madi +' '+ musteri.Msoyadi) as satilan_araclar
+from satislar
+Inner Join musteri on musteri.Mno = satislar.MNo
+where aracNo =
+(select AracNo from satislar
+where MNo =(select Mno from musteri 
+where Madi ='samet' and Msoyadi ='tekinşen'))
+
+2.satıs yapılan aracların bılgılerını lıstelemek ıcın:
+select musteri.Madi,araclar.marka,araclar.model,
+satislar.Fiyat from satislar
+inner join musteri on musteri.Mno = satislar.MNo
+inner join araclar on araclar.Aracno = satislar.AracNo
+where araclar.AracNo in (select AracNo from araclar)
+
+3.satıs tutarı alım tutarından dusuk olan aracları lıstelemek:
+select s.Fiyat, a.Fiyat, m.Madi from satislar as s
+inner join alislar as a on a.AracNo=s.AracNo
+inner join musteri as m on m.Mno=s.MNo
+where s.Fiyat < a.Fiyat
+
+4.opel marka arac yapılan satısların ve alımların hangı musterılerle yapıldıgını bulmak için:
+SELECT (M.Madi + ' ' + M.Msoyadi) as musteri
+FROM Satis S
+INNER JOIN Musteri M ON S.Mno = M.Mno
+WHERE S.Aracno IN (
+    SELECT Aracno FROM Arac WHERE Marka = 'Opel'
+);
+SELECT (M.Madi + ' ' + M.Msoyadi) AS musteri
+FROM Alim A
+INNER JOIN Musteri M ON A.Mno = M.Mno
+WHERE A.Aracno IN (
+    SELECT Aracno FROM Arac WHERE Marka = 'Opel'
+);
+
+5.arac fiyatı 20000den yuksek olan aracların hangı fıyata sayıldıgını bulmak ıcın:
+SELECT S.Sfiyat
+FROM Satis S
+WHERE S.Aracno IN (
+    SELECT Aracno FROM Arac WHERE Fiyat > 20000
+);
+
+6.turhal ve amasyaya yapılan satısların toplam tutarını azalan sırada listelemek:
+SELECT M.Madres, SUM(S.Sfiyat) as toplam
+FROM Satis S
+INNER JOIN Musteri M ON S.Mno = M.Mno
+WHERE M.Madres LIKE '%Turhal%' OR M.Madres LIKE '%Amasya%'
+GROUP BY M.Madres
+ORDER BY toplam DESC;
+
+7.satıs veya alım yapılmayan musterılerın bılgılerını lıstelemek:
+SELECT (M.Madi + ' ' + M.Msoyadi) as musteri
+FROM Musteri M
+WHERE M.Mno NOT IN (SELECT Mno FROM Satis)
+AND M.Mno NOT IN (SELECT Mno FROM Alim);
+
+8. 5. ve 6. ayda yapılan satısların kımlere yapıldıgını bulmak ıcın:
+SELECT * FROM Satis
+WHERE MONTH(STR_TO_DATE(Sat_tarih, '%d.%m.%Y')) IN (5, 6);
+
+9.aynı marka arac alan musterılerı ve aldıgı arac markasını lıstelemek:
+SELECT (M.Madi + ' ' + M.Msoyadi) as musteri, A.Marka, COUNT(*) as sayi
+FROM Alim Al
+INNER JOIN Musteri M ON Al.Mno = M.Mno
+INNER JOIN Arac A ON Al.Aracno = A.Aracno
+GROUP BY M.Madi, M.Msoyadi, A.Marka
+HAVING COUNT(*) > 1;
+
+10.en yuksek fıyata satılan aracın marka fiyat ve kime satıldıgı bılgısını lıstelemek:
+SELECT A.Marka, S.Sfiyat, (M.Madi + ' ' + M.Msoyadi) as musteri
+FROM Satis S
+INNER JOIN Arac A ON S.Aracno = A.Aracno
+INNER JOIN Musteri M ON S.Mno = M.Mno
+WHERE S.Sfiyat = (
+    SELECT MAX(Sfiyat) FROM Satis
+);
